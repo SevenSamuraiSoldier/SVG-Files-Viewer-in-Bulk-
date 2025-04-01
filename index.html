@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SVG Viewer</title>
+  <meta charset="UTF-8">
+  <meta name="SVG Viewer" content="Single Page Offline App" />
+  <meta name="description" content="View multiple svg files & svg code to display the icon." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="HTML, CSS, JavaScript" />
+  <!-- <link rel="icon" type="image/png" href="favicon.png"> -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --background-color: #333;
+      --text-color: #b6b6b6;
+      --slider-color: #666;
+      --slider-thumb-color: #b6b6b6;
+      --button-color: #393a3a;
+      --button-text-color: #b6b6b6;
+      --button-hover-color: #5b5b5b;
+      --border-props: 0.1em solid #32ac71;
+      --border-radius: 0.5em;
+      --border-width: 0.1em;
+      --border-type: solid;
+      --border-color: #32ac71;
+      --padding-general: 0.5em;
+      --svg-width: 2em;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin-block: 20px;
+      background-color: #2c2c2c; /* Dark grey background */
+      color: #bebebe; /* Text color */
+    }
+    h1 {
+      font-size: 1em;
+      text-align: center;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+      gap: 10px;
+      margin-inline: 1em;
+      margin-block: 1em;
+    }
+    .svg-item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #444; /* Slightly lighter border */
+      padding: 10px;
+      text-align: center;
+      background-color: #3a3a3a; /* Darker background for SVG items */
+      border-radius: 5px; /* Rounded corners */
+      cursor: pointer; /* Indicate clickable items */
+    }
+    .svg-item:hover {
+      background-color: #555; /* Lighter background on hover */
+    }
+    .svg-item svg {
+      /* max-width: 100%; */
+      min-width: 15px;
+      width: 35px;
+      height: auto;
+    }
+    input[type="file"] {
+      width: 7em;
+      margin: 0.5em 0em;
+      padding: 0.5em;
+      /* Background for file input */
+      color: transparent;
+      cursor: pointer;
+      /* margin-inline: 1em; */
+      border: var(--border-props);
+      border-radius: var(--border-radius);
+      transition: all 0.3s ease-out;
+    }
+    input[type="file"]:hover, button:hover {
+      scale: 1.05;
+      border-color: #c04242; 
+    }
+    .popup {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: #e1e4e8;
+      padding: 10px;
+      border-radius: 5px;
+      display: none; /* Hidden by default */
+    }
+    
+    input[type="range"] {
+      width: 25vw;
+      min-width: 15em;
+    }
+    input[type="file"]::file-selector-button {
+      background-color: var(--button-color); /*#444; */
+      color: var(--button-text-color); /*#b1b1b1; */
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    input {
+      background-color: var(--button-color);
+    }
+    button {
+      background-color: var(--button-color);
+      color: var(--button-text-color); 
+      border: var(--border-props);
+      border-radius: var(--border-radius);
+      transition: all 0.3s ease-out;
+      margin-inline: 0em;
+      padding: 0.5em;
+    }
+    .btn-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 2em;
+      margin-inline: 1em;
+      margin-left: 1.2em;
+    }
+    #svgInput {
+      min-width: 20em;
+      width: 40em;
+      /* width: auto; */
+      max-width: 50em;
+      height: 1.5em;
+      /* margin-bottom: 20px; */
+      margin-inline: 0em;
+      padding-inline: 1em;
+      padding-block: 0.5em;
+      border: var(--border-props);
+      border-radius: 0.5em;
+      background-color: var(--background-color);
+      color: var(--text-color);
+    }
+
+  /*------ SVG code viewer css code from here.....---------*/
+    .container {
+      margin-block: 2em;
+      display: flex;
+      gap: 1em;
+      flex-wrap: nowrap;
+      align-content: center;
+      justify-content: center;
+      align-items: center;
+            
+    }
+    .svg-container {
+        
+      transform: scale(1.5); /* Increase size by 50% */
+    }
+    .white-bg,.dark-bg {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 0.2em;
+      border-radius: 0.5em;
+      margin-inline: 1em;
+    }
+    .white-bg {
+      background-color: #e1e4e8;
+      border: 1px solid #ccc;
+    }
+    .dark-bg {
+      background-color: #3a3a3a; /* #333; */
+      border: 1px solid #666;
+    }
+    
+    .white-bg > svg {
+      width: var(--svg-width);
+      height: auto;
+      fill: #454545; /* #353535; old value -------*/
+    }
+    .dark-bg > svg {
+      width: var(--svg-width);
+      height: auto;
+      fill: #cbcbcb;
+    }
+
+
+  </style>
+</head>
+<body>
+  <h1>SVG Viewer</h1>
+  <div class="btn-panel">
+    <input type="file" id="fileInput" multiple accept=".svg">
+    <textarea id="svgInput" spellcheck="false" placeholder="Paste your SVG code here..."></textarea>
+    <button id="displayButton">Display SVG</button>
+    <div class="container">
+      <div class="svg-container white-bg" id="whiteBackground"></div>
+      <div class="svg-container dark-bg" id="darkBackground"></div>
+    </div>
+
+  </div>
+  
+  <div id="grid"></div>
+  
+  <!-- Popup message -->
+  <div class="popup" id="popupMessage">SVG code copied to clipboard!</div>
+
+  <script>
+    let whiteSvgBg = document.getElementById('whiteBackground');
+    let darkSvgBg = document.getElementById('darkBackground');
+    let svgBgStart = false;
+    let displayButton = document.getElementById('displayButton');
+    document.getElementById("fileInput").addEventListener("change", (event) => {
+      const files = event.target.files;
+      const grid = document.getElementById("grid");
+      grid.innerHTML = ""; // Clear previous content
+
+      Array.from(files).forEach(file => {
+        if (file.type === "image/svg+xml") {
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            // Create an element to display the SVG
+            const div = document.createElement("div");
+            div.className = "svg-item";
+            div.innerHTML = reader.result; // Insert SVG content directly
+            grid.appendChild(div);
+
+            // Add click event to copy the SVG code
+            //div.addEventListener("click", () => copyToClipboard(reader.result)); ---Old Code
+            //--Added below code to be able to use onclick event after saving the file--------
+            div.setAttribute('onclick', `copyToClipboard(this)`);
+          };
+
+          reader.readAsText(file);
+        } else {
+          alert(`File "${file.name}" is not an SVG.`);
+        }
+      });
+    });
+
+    function copyToClipboard(svgDiv) {
+      //console.log(svgDiv.innerHTML);
+      let svgCode = svgDiv.innerHTML;
+      navigator.clipboard.writeText(svgCode)
+        .then(() => {
+          showPopup();
+          const svgCodeInputText = document.getElementById('svgInput');
+          svgCodeInputText.value = svgCode;
+          displayButton.click();
+        } )
+        .catch(err => console.error("Failed to copy SVG code:", err));
+    }
+
+    function showPopup() {
+      const popup = document.getElementById("popupMessage");
+      popup.style.display = "block"; // Show the popup
+      setTimeout(() => {
+        popup.style.display = "none"; // Hide after 0.5 seconds
+      }, 500);
+    }
+
+    document.getElementById('displayButton').addEventListener('click', function() {
+        const svgCodeInputText = document.getElementById('svgInput');
+        const svgCode = svgCodeInputText.value;
+        if (!svgBgStart) {
+          console.log("First Time Displaying the SVG");
+          svgBgStart = true;
+          whiteSvgBg.style.display = "flex";
+          darkSvgBg.style.display = "flex";
+        }
+
+        // Display SVG in white background
+        whiteSvgBg.innerHTML = svgCode;
+
+        // Display SVG in dark grey background
+        darkSvgBg.innerHTML = svgCode;
+        svgCodeInputText.value = "";
+    });
+
+  </script>
+</body>
+</html>
